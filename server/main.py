@@ -25,12 +25,13 @@ player_audio_rate: dict[str, int] = {}  # player_id -> sample rate reported by c
 speech_buffers: dict[str, list[str]] = {}  # player_id -> recent transcript fragments
 speech_timers: dict[str, float] = {}  # player_id -> time of last transcript fragment
 speech_started_at: dict[str, float] = {}  # player_id -> time first fragment arrived
+speech_empty_windows: dict[str, int] = {}  # player_id -> consecutive empty STT windows
 
 # Whisper needs enough context; tiny chunks often produce empty text.
 DEFAULT_AUDIO_SAMPLE_RATE = 44100
 STT_WINDOW_SECONDS = 2
-SENTENCE_GAP_SECONDS = 2.0  # require a longer pause before flushing
-MIN_WORDS_TO_FLUSH = 6
+SENTENCE_GAP_SECONDS = 0.8
+EMPTY_WINDOWS_TO_FLUSH = 2  # require sustained silence before flush
 MAX_SENTENCE_WAIT_SECONDS = 7.0
 
 # ── FastAPI app ───────────────────────────────────────────────
@@ -130,8 +131,6 @@ async def sentence_flush_loop():
 
         for player_id in list(speech_timers.keys()):
             last_fragment_t = speech_timers.get(player_id, 0.0)
-            if now - last_fragment_t < SENTENCE_GAP_SECONDS:
-                continue  # player is still talking
 
             fragments = speech_buffers.get(player_id, [])
             if not fragments:
@@ -139,19 +138,22 @@ async def sentence_flush_loop():
 
             # Merge fragments into one sentence-ish utterance.
             full_text = " ".join(fragments).strip()
-            word_count = len(full_text.split())
             started_t = speech_started_at.get(player_id, last_fragment_t)
             waited = now - started_t
+            silence_windows = speech_empty_windows.get(player_id, 0)
 
-            # Avoid splitting on short pauses: keep buffering unless we have
-            # enough words or we've waited too long already.
-            if word_count < MIN_WORDS_TO_FLUSH and waited < MAX_SENTENCE_WAIT_SECONDS:
+            # Flush only after real silence (multiple empty windows),
+            # or after a hard max wait to avoid never flushing.
+            if silence_windows < EMPTY_WINDOWS_TO_FLUSH and waited < MAX_SENTENCE_WAIT_SECONDS:
+                continue
+            if now - last_fragment_t < SENTENCE_GAP_SECONDS and waited < MAX_SENTENCE_WAIT_SECONDS:
                 continue
 
             speech_buffers[player_id] = []
             del speech_timers[player_id]
             if player_id in speech_started_at:
                 del speech_started_at[player_id]
+            speech_empty_windows[player_id] = 0
 
             if len(full_text) < 2:
                 continue
@@ -245,6 +247,8 @@ async def player_ws(websocket: WebSocket, player_id: str):
             del speech_timers[player_id]
         if player_id in speech_started_at:
             del speech_started_at[player_id]
+        if player_id in speech_empty_windows:
+            del speech_empty_windows[player_id]
         print(f"[disconnect] {player_id}")
         await broadcast({"type": "player_left", "player_id": player_id})
 
@@ -312,6 +316,7 @@ async def handle_audio(player_id: str, audio_bytes: bytes):
         text = await transcribe_audio(chunk, sample_rate=sr)
         if not text or len(text.strip()) < 2:
             print(f"[speech-empty] {player_id}")
+            speech_empty_windows[player_id] = speech_empty_windows.get(player_id, 0) + 1
             return
 
         fragment = text.strip()
@@ -321,6 +326,7 @@ async def handle_audio(player_id: str, audio_bytes: bytes):
             speech_started_at[player_id] = time.time()
         fragments.append(fragment)
         speech_timers[player_id] = time.time()
+        speech_empty_windows[player_id] = 0
 
     except Exception as e:
         print(f"[audio error] {e}")
