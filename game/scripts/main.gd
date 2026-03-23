@@ -34,4 +34,3 @@ func _on_message(data: Dictionary):
 			print("YOU SAID: ", data.get("text", ""))
 		_:
 			print("Server message: ", data.get("type"), " payload: ", data)
-

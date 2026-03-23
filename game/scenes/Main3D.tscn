@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://dlckl4fckk0fa"]
+
+[ext_resource type="Script" uid="uid://dsnbfsl71fft" path="res://scripts/network.gd" id="1_1iatr"]
+[ext_resource type="Script" uid="uid://c321hfxm0fera" path="res://scripts/player3d.gd" id="1_vjhcd"]
+[ext_resource type="Script" uid="uid://decq212feqm7q" path="res://scripts/ghost3d.gd" id="2_1d72u"]
+[ext_resource type="Script" uid="uid://jec5fdotjkui" path="res://scripts/mic_capture.gd" id="3_f3gxh"]
+[ext_resource type="Script" uid="uid://ckvqx1j16d8xv" path="res://scripts/main.gd" id="4_1iatr"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1d72u"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qhbaj"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_f3gxh"]
+
+[sub_resource type="Environment" id="Environment_1iatr"]
+fog_enabled = true
+fog_density = 0.0298
+
+[sub_resource type="SphereMesh" id="SphereMesh_c0t86"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_veire"]
+
+[node name="Network" type="Node3D" unique_id=845464121]
+script = ExtResource("1_1iatr")
+
+[node name="Player" type="CharacterBody3D" parent="." unique_id=2086449645]
+script = ExtResource("1_vjhcd")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=2030729679]
+shape = SubResource("CapsuleShape3D_1d72u")
+
+[node name="Camera3D" type="Camera3D" parent="Player" unique_id=1366454339]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+
+[node name="Floor" type="StaticBody3D" parent="." unique_id=1530658767]
+transform = Transform3D(20, 0, 0, 0, 1, 0, 0, 0, 20, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor" unique_id=976387613]
+shape = SubResource("BoxShape3D_qhbaj")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor" unique_id=592971523]
+mesh = SubResource("BoxMesh_f3gxh")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1461094697]
+light_color = Color(0.09174665, 0.31658185, 0.53479034, 1)
+light_energy = 0.429
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1226027079]
+environment = SubResource("Environment_1iatr")
+
+[node name="Ghost" type="CharacterBody3D" parent="." unique_id=16123903]
+script = ExtResource("2_1d72u")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ghost" unique_id=501969367]
+mesh = SubResource("SphereMesh_c0t86")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ghost" unique_id=836889520]
+shape = SubResource("SphereShape3D_veire")
+
+[node name="MicCapture" type="Node3D" parent="." unique_id=1064383444]
+script = ExtResource("3_f3gxh")
+
+[node name="MainController" type="Node3D" parent="." unique_id=1458399289]
+script = ExtResource("4_1iatr")
