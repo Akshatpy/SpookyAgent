@@ -1,7 +1,6 @@
 import asyncio
 import json
 import time
-import numpy as np
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -31,7 +30,7 @@ speech_empty_windows: dict[str, int] = {}  # player_id -> consecutive empty STT 
 DEFAULT_AUDIO_SAMPLE_RATE = 44100
 STT_WINDOW_SECONDS = 2
 SENTENCE_GAP_SECONDS = 0.8
-EMPTY_WINDOWS_TO_FLUSH = 2  # require sustained silence before flush
+EMPTY_WINDOWS_TO_FLUSH = 3  # require sustained silence before flush
 MAX_SENTENCE_WAIT_SECONDS = 7.0
 
 # ── FastAPI app ───────────────────────────────────────────────
@@ -55,8 +54,6 @@ async def ghost_loop():
 
 async def handle_ghost_action(action: dict):
     """Execute a ghost action — update state + notify all clients."""
-    print(f"[ghost] action: {action}")
-
     update_ghost_memory(state, {"time": time.time(), "ghost_action": action})
     state.ghost.current_action = action.get("action", "idle")
 
@@ -200,18 +197,10 @@ async def player_ws(websocket: WebSocket, player_id: str):
     if player_id not in state.players:
         state.players[player_id] = PlayerState(id=player_id, name=f"Player_{player_id[:4]}")
 
-    print(f"[connect] player {player_id} joined. Total: {len(state.players)}")
-
     # Send current state to new player
     await websocket.send_json({
         "type": "state_sync",
         "state": state.model_dump()
-    })
-    # Debug: verify client prints transcripts.
-    await websocket.send_json({
-        "type": "speech_transcript",
-        "player_id": player_id,
-        "text": "(debug) connected"
     })
     await broadcast({"type": "player_joined", "player_id": player_id, "name": state.players[player_id].name})
 
@@ -249,7 +238,6 @@ async def player_ws(websocket: WebSocket, player_id: str):
             del speech_started_at[player_id]
         if player_id in speech_empty_windows:
             del speech_empty_windows[player_id]
-        print(f"[disconnect] {player_id}")
         await broadcast({"type": "player_left", "player_id": player_id})
 
 
@@ -284,7 +272,6 @@ async def handle_player_message(player_id: str, msg: dict):
             sr = int(msg.get("sample_rate", DEFAULT_AUDIO_SAMPLE_RATE))
             if 8000 <= sr <= 192000:
                 player_audio_rate[player_id] = sr
-                print(f"[audio_config] {player_id}: sample_rate={sr}")
         except Exception:
             pass
 
@@ -294,7 +281,6 @@ async def handle_audio(player_id: str, audio_bytes: bytes):
     if len(audio_bytes) < 1000:
         return  # too short, skip
 
-    print(f"[audio] from {player_id}: bytes={len(audio_bytes)}")
     buf = audio_buffers.setdefault(player_id, bytearray())
     buf.extend(audio_bytes)
 
@@ -306,21 +292,13 @@ async def handle_audio(player_id: str, audio_bytes: bytes):
     # Consume buffered bytes for one transcription window.
     chunk = bytes(buf)
     audio_buffers[player_id] = bytearray()
-    arr = np.frombuffer(chunk, dtype=np.float32)
-    if arr.size:
-        rms = float(np.sqrt(np.mean(arr * arr)))
-        peak = float(np.max(np.abs(arr)))
-        print(f"[audio-level] {player_id}: samples={arr.size} rms={rms:.6f} peak={peak:.6f}")
-
     try:
         text = await transcribe_audio(chunk, sample_rate=sr)
         if not text or len(text.strip()) < 2:
-            print(f"[speech-empty] {player_id}")
             speech_empty_windows[player_id] = speech_empty_windows.get(player_id, 0) + 1
             return
 
         fragment = text.strip()
-        print(f"[fragment] {player_id}: {fragment}")
         fragments = speech_buffers.setdefault(player_id, [])
         if not fragments:
             speech_started_at[player_id] = time.time()
