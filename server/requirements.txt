@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+websockets
+openai
+faster-whisper
+sounddevice
+numpy
+scipy
+python-dotenv
+pydantic
+

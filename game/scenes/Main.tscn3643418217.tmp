@@ -1,0 +1,104 @@
+[gd_scene format=3 uid="uid://bawm8lriycrtm"]
+
+[ext_resource type="Script" uid="uid://dsnbfsl71fft" path="res://scripts/network.gd" id="1_rvslj"]
+[ext_resource type="Script" uid="uid://ckvqx1j16d8xv" path="res://scripts/main.gd" id="2_0bbpv"]
+[ext_resource type="Script" uid="uid://sunaefl361me" path="res://scripts/player.gd" id="3_0bbpv"]
+[ext_resource type="Script" uid="uid://dff302jmcgx6k" path="res://scripts/fuse_box.gd" id="4_rarhs"]
+[ext_resource type="Script" uid="uid://b8slsdo8761l5" path="res://scripts/ghost.gd" id="5_vcsgt"]
+
+[sub_resource type="Gradient" id="Gradient_0bbpv"]
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_rarhs"]
+gradient = SubResource("Gradient_0bbpv")
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_c01mt"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vcsgt"]
+
+[sub_resource type="Gradient" id="Gradient_c01mt"]
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_nxtc6"]
+gradient = SubResource("Gradient_c01mt")
+
+[sub_resource type="Gradient" id="Gradient_nxtc6"]
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_jlsqs"]
+gradient = SubResource("Gradient_nxtc6")
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_q8u5g"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_lhr70"]
+radius = 50.05
+
+[node name="Network" type="Node" unique_id=1670076253]
+script = ExtResource("1_rvslj")
+
+[node name="MainController" type="Node" parent="." unique_id=997524200]
+script = ExtResource("2_0bbpv")
+
+[node name="Player" type="CharacterBody2D" parent="." unique_id=2091419250 groups=["players"]]
+script = ExtResource("3_0bbpv")
+
+[node name="Sprite2D" type="Sprite2D" parent="Player" unique_id=371867332]
+texture = SubResource("GradientTexture2D_rarhs")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player" unique_id=2061054010]
+shape = SubResource("CapsuleShape2D_c01mt")
+
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=95056829]
+
+[node name="Fuses" type="Node2D" parent="." unique_id=1836536569]
+
+[node name="Fuse1" type="Area2D" parent="Fuses" unique_id=612326949]
+position = Vector2(200, 0)
+script = ExtResource("4_rarhs")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Fuses/Fuse1" unique_id=256986115]
+shape = SubResource("RectangleShape2D_vcsgt")
+
+[node name="Sprite2D" type="Sprite2D" parent="Fuses/Fuse1/CollisionShape2D" unique_id=294042212]
+texture = SubResource("GradientTexture2D_nxtc6")
+
+[node name="Fuse2" type="Area2D" parent="Fuses" unique_id=1754730146]
+position = Vector2(-200, 0)
+script = ExtResource("4_rarhs")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Fuses/Fuse2" unique_id=1089884662]
+shape = SubResource("RectangleShape2D_vcsgt")
+
+[node name="Sprite2D" type="Sprite2D" parent="Fuses/Fuse2/CollisionShape2D" unique_id=2092052222]
+texture = SubResource("GradientTexture2D_nxtc6")
+
+[node name="Fuse3" type="Area2D" parent="Fuses" unique_id=565342290]
+position = Vector2(0, 200)
+script = ExtResource("4_rarhs")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Fuses/Fuse3" unique_id=675467826]
+shape = SubResource("RectangleShape2D_vcsgt")
+
+[node name="Sprite2D" type="Sprite2D" parent="Fuses/Fuse3/CollisionShape2D" unique_id=469037464]
+texture = SubResource("GradientTexture2D_nxtc6")
+
+[node name="Fuse4" type="Area2D" parent="Fuses" unique_id=2019085350]
+position = Vector2(0, -200)
+script = ExtResource("4_rarhs")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Fuses/Fuse4" unique_id=289367122]
+shape = SubResource("RectangleShape2D_vcsgt")
+
+[node name="Sprite2D" type="Sprite2D" parent="Fuses/Fuse4/CollisionShape2D" unique_id=993157605]
+texture = SubResource("GradientTexture2D_nxtc6")
+
+[node name="Ghost" type="CharacterBody2D" parent="." unique_id=1787797563]
+script = ExtResource("5_vcsgt")
+
+[node name="Sprite2D" type="Sprite2D" parent="Ghost" unique_id=1051621656]
+texture = SubResource("GradientTexture2D_jlsqs")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ghost" unique_id=1595454685]
+shape = SubResource("RectangleShape2D_q8u5g")
+
+[node name="HauntRadius" type="Area2D" parent="Ghost" unique_id=633781219]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ghost/HauntRadius" unique_id=56813916]
+shape = SubResource("CircleShape2D_lhr70")
