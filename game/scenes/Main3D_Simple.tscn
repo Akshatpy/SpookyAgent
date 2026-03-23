@@ -1,0 +1,62 @@
+[gd_scene format=3 uid="uid://simple_main3d"]
+
+[ext_resource type="Script" path="res://scripts/network.gd" id="1_network"]
+[ext_resource type="Script" path="res://scripts/player3d.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/ghost3d.gd" id="3_ghost"]
+[ext_resource type="Script" path="res://scripts/mic_capture.gd" id="4_mic"]
+[ext_resource type="Script" path="res://scripts/main.gd" id="5_main"]
+[ext_resource type="Script" path="res://scripts/game_ui.gd" id="6_ui"]
+
+[sub_resource type="CapsuleShape3D" id="PlayerShape"]
+
+[sub_resource type="SphereShape3D" id="GhostShape"]
+
+[sub_resource type="BoxShape3D" id="FloorShape"]
+
+[sub_resource type="BoxMesh" id="FloorMesh"]
+size = Vector3(50, 0.1, 50)
+
+[sub_resource type="StandardMaterial3D" id="FloorMaterial"]
+albedo_color = Color(0.2, 0.15, 0.25, 1)
+
+[sub_resource type="StandardMaterial3D" id="GhostMaterial"]
+albedo_color = Color(0.8, 0.8, 0.9, 0.8)
+emission_enabled = true
+emission = Color(0.2, 0.1, 0.3, 1)
+
+[sub_resource type="SphereMesh" id="GhostMesh"]
+radius = 1.0
+
+[sub_resource type="Environment" id="Env"]
+background_mode = 1
+background_color = Color(0.01, 0.01, 0.02, 1)
+fog_enabled = true
+fog_density = 0.02
+
+[node name="Network" type="Node3D" parent="." script=ExtResource("1_network")]
+
+[node name="Player" type="CharacterBody3D" parent="." script=ExtResource("2_player")]
+
+[node name="PlayerCollision" type="CollisionShape3D" parent="Player" shape=SubResource("PlayerShape")]
+
+[node name="Camera" type="Camera3D" parent="Player" transform=Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.6, 0)]
+
+[node name="Floor" type="StaticBody3D" parent="."]
+
+[node name="FloorCollision" type="CollisionShape3D" parent="Floor" shape=SubResource("FloorShape")]
+
+[node name="FloorMesh" type="MeshInstance3D" parent="Floor" mesh=SubResource("FloorMesh") material=SubResource("FloorMaterial")]
+
+[node name="Ghost" type="CharacterBody3D" parent="." script=ExtResource("3_ghost")]
+
+[node name="GhostMesh" type="MeshInstance3D" parent="Ghost" mesh=SubResource("GhostMesh") material=SubResource("GhostMaterial")]
+
+[node name="GhostCollision" type="CollisionShape3D" parent="Ghost" shape=SubResource("GhostShape")]
+
+[node name="DirectionalLight" type="DirectionalLight3D" parent="." light_color=Color(0.3, 0.2, 0.5, 1) light_energy=0.3]
+
+[node name="GameUI" type="Control" parent="." script=ExtResource("6_ui")]
+
+[node name="MicCapture" type="Node" parent="." script=ExtResource("4_mic")]
+
+[node name="MainController" type="Node3D" parent="." script=ExtResource("5_main")]

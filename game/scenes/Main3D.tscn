@@ -1,0 +1,409 @@
+[gd_scene format=3 uid="uid://dlckl4fckk0fa"]
+
+[ext_resource type="Script" uid="uid://dsnbfsl71fft" path="res://scripts/network.gd" id="1_1iatr"]
+[ext_resource type="Script" uid="uid://c321hfxm0fera" path="res://scripts/player3d.gd" id="1_vjhcd"]
+[ext_resource type="Script" uid="uid://decq212feqm7q" path="res://scripts/ghost3d.gd" id="2_1d72u"]
+[ext_resource type="Script" uid="uid://jec5fdotjkui" path="res://scripts/mic_capture.gd" id="3_f3gxh"]
+[ext_resource type="Script" uid="uid://ckvqx1j16d8xv" path="res://scripts/main.gd" id="4_1iatr"]
+[ext_resource type="Script" uid="uid://d1rrgn2r3kyha" path="res://scripts/game_ui.gd" id="5_game_ui"]
+[ext_resource type="Script" path="res://scripts/ghost_face.gd" id="6_ghost_face"]
+[ext_resource type="Script" path="res://scripts/player_hands.gd" id="7_player_hands"]
+[ext_resource type="Script" path="res://scripts/fuse_collector.gd" id="8_fuse_collector"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1d72u"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qhbaj"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_f3gxh"]
+size = Vector3(1, 0.1, 1)
+
+[sub_resource type="StandardMaterial3D" id="FloorMaterial"]
+albedo_color = Color(0.06, 0.07, 0.09, 1)
+roughness = 0.95
+metallic = 0.05
+emission_enabled = true
+emission = Color(0.03, 0.04, 0.06, 1)
+emission_energy_multiplier = 0.25
+
+[sub_resource type="StandardMaterial3D" id="WallMaterial"]
+albedo_color = Color(0.14, 0.1, 0.18, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="WallMesh"]
+size = Vector3(1, 3, 0.2)
+
+[sub_resource type="StandardMaterial3D" id="FuseMaterial"]
+albedo_color = Color(0.9, 0.8, 0.2, 1)
+roughness = 0.3
+metallic = 0.8
+emission_enabled = true
+emission = Color(0.8, 0.6, 0.1, 1)
+emission_energy_multiplier = 1.5
+
+[sub_resource type="Environment" id="Environment_1iatr"]
+background_mode = 1
+background_color = Color(0.003, 0.003, 0.008, 1)
+tonemap_mode = 2
+tonemap_exposure = 0.55
+ssr_enabled = true
+ssao_enabled = true
+ssil_enabled = true
+fog_enabled = true
+fog_light_color = Color(0.12, 0.02, 0.03, 1)
+fog_density = 0.028
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.05
+
+[sub_resource type="SphereMesh" id="SphereMesh_c0t86"]
+radial_segments = 16
+rings = 8
+
+[sub_resource type="StandardMaterial3D" id="GhostFaceMaterial"]
+albedo_color = Color(0.72, 0.72, 0.82, 1)
+roughness = 0.15
+metallic = 0.0
+emission_enabled = true
+emission = Color(0.45, 0.02, 0.05, 1)
+emission_energy_multiplier = 3.2
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_veire"]
+
+[node name="Network" type="Node3D" unique_id=845464121]
+script = ExtResource("1_1iatr")
+
+[node name="Player" type="CharacterBody3D" parent="." unique_id=2086449645]
+script = ExtResource("1_vjhcd")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player" unique_id=2030729679]
+shape = SubResource("CapsuleShape3D_1d72u")
+
+[node name="Camera3D" type="Camera3D" parent="Player" unique_id=1366454339]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+
+[node name="PlayerHands" type="Node3D" parent="Player/Camera3D" unique_id=987654322]
+script = ExtResource("7_player_hands")
+
+[node name="Floor" type="StaticBody3D" parent="." unique_id=1530658767]
+transform = Transform3D(50, 0, 0, 0, 1, 0, 0, 0, 50, 0, -0.15, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor" unique_id=976387613]
+shape = SubResource("BoxShape3D_qhbaj")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor" unique_id=592971523]
+material_override = SubResource("FloorMaterial")
+mesh = SubResource("BoxMesh_f3gxh")
+
+[node name="Walls" type="Node3D" parent="." unique_id=123456789]
+
+[node name="Wall1" type="StaticBody3D" parent="Walls" unique_id=234567891]
+transform = Transform3D(50, 0, 0, 0, 1.5, 0, 0, 0, 1, 0, 0, 25)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Walls/Wall1" unique_id=345678912]
+shape = SubResource("BoxShape3D_qhbaj")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Walls/Wall1" unique_id=456789123]
+material_override = SubResource("WallMaterial")
+mesh = SubResource("WallMesh")
+
+[node name="Wall2" type="StaticBody3D" parent="Walls" unique_id=567891234]
+transform = Transform3D(50, 0, 0, 0, 1.5, 0, 0, 0, 1, 0, 0, -25)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Walls/Wall2" unique_id=678912345]
+shape = SubResource("BoxShape3D_qhbaj")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Walls/Wall2" unique_id=789123456]
+material_override = SubResource("WallMaterial")
+mesh = SubResource("WallMesh")
+
+[node name="Wall3" type="StaticBody3D" parent="Walls" unique_id=890123456]
+transform = Transform3D(1, 0, 0, 0, 1.5, 0, 0, 0, 50, 25, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Walls/Wall3" unique_id=901234567]
+shape = SubResource("BoxShape3D_qhbaj")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Walls/Wall3" unique_id=12345678]
+material_override = SubResource("WallMaterial")
+mesh = SubResource("WallMesh")
+
+[node name="Wall4" type="StaticBody3D" parent="Walls" unique_id=112345678]
+transform = Transform3D(1, 0, 0, 0, 1.5, 0, 0, 0, 50, -25, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Walls/Wall4" unique_id=223456789]
+shape = SubResource("BoxShape3D_qhbaj")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Walls/Wall4" unique_id=334567890]
+material_override = SubResource("WallMaterial")
+mesh = SubResource("WallMesh")
+
+[node name="Fuses" type="Node3D" parent="." unique_id=555666777]
+script = ExtResource("8_fuse_collector")
+
+[node name="Fuse1" type="Area3D" parent="Fuses" unique_id=888999111]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Fuses/Fuse1" unique_id=999888222]
+shape = SubResource("BoxShape3D_qhbaj")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Fuses/Fuse1" unique_id=777333888]
+material_override = SubResource("FuseMaterial")
+mesh = SubResource("BoxMesh_f3gxh")
+
+[node name="Fuse2" type="Area3D" parent="Fuses" unique_id=666777999]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, 5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Fuses/Fuse2" unique_id=555888999]
+shape = SubResource("BoxShape3D_qhbaj")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Fuses/Fuse2" unique_id=444777888]
+material_override = SubResource("FuseMaterial")
+mesh = SubResource("BoxMesh_f3gxh")
+
+[node name="Fuse3" type="Area3D" parent="Fuses" unique_id=333666777]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, -5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Fuses/Fuse3" unique_id=222555888]
+shape = SubResource("BoxShape3D_qhbaj")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Fuses/Fuse3" unique_id=111444777]
+material_override = SubResource("FuseMaterial")
+mesh = SubResource("BoxMesh_f3gxh")
+
+[node name="Fuse4" type="Area3D" parent="Fuses" unique_id=999555666]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, -5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Fuses/Fuse4" unique_id=888444555]
+shape = SubResource("BoxShape3D_qhbaj")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Fuses/Fuse4" unique_id=777333444]
+material_override = SubResource("FuseMaterial")
+mesh = SubResource("BoxMesh_f3gxh")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1461094697]
+transform = Transform3D(0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, -0.5, 0.5, 0, 10, 0)
+light_color = Color(0.16, 0.06, 0.08, 1)
+light_energy = 0.08
+shadow_enabled = true
+
+[node name="SpotLight3D" type="SpotLight3D" parent="." unique_id=192837465]
+transform = Transform3D(1, 0, 0, 0, 0.866025, -0.5, 0, 0.5, 0.866025, 5, 8, 0)
+light_color = Color(0.65, 0.12, 0.1, 1)
+light_energy = 1.2
+shadow_enabled = true
+spot_range = 16.0
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1226027079]
+environment = SubResource("Environment_1iatr")
+
+[node name="Ghost" type="CharacterBody3D" parent="." unique_id=16123903]
+script = ExtResource("2_1d72u")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ghost" unique_id=501969367]
+mesh = SubResource("SphereMesh_c0t86")
+material_override = SubResource("GhostFaceMaterial")
+script = ExtResource("6_ghost_face")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ghost" unique_id=836889520]
+shape = SubResource("SphereShape3D_veire")
+
+[node name="HauntRadius" type="Area3D" parent="Ghost" unique_id=783456912]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ghost/HauntRadius" unique_id=234567891]
+shape = SubResource("SphereShape3D_veire")
+
+[node name="GameUI" type="Control" parent="." unique_id=987654321]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("5_game_ui")
+
+[node name="TranscriptPanel" type="Panel" parent="GameUI" unique_id=939796139]
+modulate = Color(0.1, 0.1, 0.2, 0.8)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -200.0
+offset_right = 410.0
+offset_bottom = -10.0
+grow_vertical = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GameUI/TranscriptPanel" unique_id=82333634]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TranscriptLabel" type="Label" parent="GameUI/TranscriptPanel/VBoxContainer" unique_id=2002139987]
+modulate = Color(0.7, 0.7, 0.9, 1)
+layout_mode = 2
+text = "Transcript:"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="GameUI/TranscriptPanel/VBoxContainer" unique_id=489277086]
+layout_mode = 2
+
+[node name="TranscriptText" type="RichTextLabel" parent="GameUI/TranscriptPanel/VBoxContainer" unique_id=1716415445]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Waiting for transcript..."
+
+[node name="LLMPanel" type="Panel" parent="GameUI" unique_id=1368428039]
+modulate = Color(0.2, 0.1, 0.1, 0.8)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -410.0
+offset_top = -200.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GameUI/LLMPanel" unique_id=1881907104]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LLMLabel" type="Label" parent="GameUI/LLMPanel/VBoxContainer" unique_id=1423266678]
+modulate = Color(0.9, 0.7, 0.7, 1)
+layout_mode = 2
+text = "Hollow's Response"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="GameUI/LLMPanel/VBoxContainer" unique_id=1193780292]
+layout_mode = 2
+
+[node name="LLMText" type="RichTextLabel" parent="GameUI/LLMPanel/VBoxContainer" unique_id=1867832065]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Waiting for AI responses..."
+
+[node name="FuseCounter" type="Label" parent="GameUI" unique_id=999888777]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -80.0
+offset_top = -280.0
+offset_right = 80.0
+offset_bottom = -240.0
+text = "Fuses: 0/4"
+horizontal_alignment = 1
+vertical_alignment = 1
+modulate = Color(0.9, 0.8, 0.2, 1)
+add_theme_font_size_override("font_size", 24)
+
+[node name="GhostMessagePanel" type="Panel" parent="GameUI" unique_id=394236732]
+visible = false
+modulate = Color(0, 0, 0, 0)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -50.0
+offset_right = 200.0
+offset_bottom = 50.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GhostMessageLabel" type="Label" parent="GameUI/GhostMessagePanel" unique_id=527897822]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 15.0
+offset_right = -20.0
+offset_bottom = -15.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "GHOST MESSAGE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PauseMenu" type="Control" parent="GameUI" unique_id=2072070128]
+visible = false
+modulate = Color(0, 0, 0, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="GameUI/PauseMenu" unique_id=1636749849]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.8)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GameUI/PauseMenu" unique_id=1029090570]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -100.0
+offset_right = 100.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PauseLabel" type="Label" parent="GameUI/PauseMenu/VBoxContainer" unique_id=440822265]
+layout_mode = 2
+text = "PAUSED"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="GameUI/PauseMenu/VBoxContainer" unique_id=2070777358]
+layout_mode = 2
+
+[node name="ResumeButton" type="Button" parent="GameUI/PauseMenu/VBoxContainer" unique_id=369094424]
+layout_mode = 2
+text = "Resume"
+
+[node name="MainMenuButton" type="Button" parent="GameUI/PauseMenu/VBoxContainer" unique_id=157308668]
+layout_mode = 2
+text = "Main Menu"
+
+[node name="QuitButton" type="Button" parent="GameUI/PauseMenu/VBoxContainer" unique_id=752496356]
+layout_mode = 2
+text = "Quit Game"
+
+[node name="MicCapture" type="Node3D" parent="." unique_id=1064383444]
+script = ExtResource("3_f3gxh")
+
+[node name="MainController" type="Node3D" parent="." unique_id=1458399289]
+script = ExtResource("4_1iatr")

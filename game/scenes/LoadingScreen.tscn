@@ -1,0 +1,47 @@
+[gd_scene load_steps=3 format=3 uid="uid://c7m8x9n2k4pqt"]
+
+[ext_resource type="Script" path="res://scripts/loading_screen.gd" id="1_loading_screen"]
+[ext_resource type="Theme" uid="uid://dx8l9m2n4k5p" path="res://assets/main_theme.tres" id="2_theme"]
+
+[node name="LoadingScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_loading_screen")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02, 0.02, 0.05, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -50.0
+offset_right = 200.0
+offset_bottom = 50.0
+
+[node name="LoadingLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "LOADING..."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ProgressBar" type="ProgressBar" parent="VBoxContainer"]
+layout_mode = 2
+value = 0.0
+
+[node name="StatusLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Initializing..."
+horizontal_alignment = 1
+vertical_alignment = 1
+modulate = Color(0.7, 0.7, 0.7, 1)
