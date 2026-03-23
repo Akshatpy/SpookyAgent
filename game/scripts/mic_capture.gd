@@ -9,7 +9,6 @@ var mic_started := false
 var accumulated := PackedFloat32Array()  # ← our own buffer
 
 func _ready():
-	print("MicCapture READY")
 	network = get_node("/root/Network")
 	network.connected.connect(_on_network_connected)
 
@@ -36,11 +35,9 @@ func _ready():
 	await get_tree().create_timer(1.0).timeout
 	mic_started = true
 	send_timer = 0.0
-	print("Mic warmup done — accumulating")
 
 func _on_network_connected():
 	var mix_rate := int(AudioServer.get_mix_rate())
-	print("Sending audio_config — mix_rate:", mix_rate)
 	network.send({"type": "audio_config", "sample_rate": mix_rate})
 
 func _process(delta):
@@ -67,10 +64,7 @@ func _flush_audio():
 	var mix_rate := int(AudioServer.get_mix_rate())
 	var min_frames := int(mix_rate * 0.25)
 
-	print("Flush check — accumulated: ", accumulated.size(), " need: ", min_frames)
-
 	if accumulated.size() < min_frames:
-		print("Not enough data yet, skipping")
 		return
 
 	# Take everything accumulated so far
@@ -79,12 +73,3 @@ func _flush_audio():
 
 	var bytes := to_send.to_byte_array()
 	network.send_audio(bytes)
-
-	var sum_sq := 0.0
-	var peak := 0.0
-	for s in to_send:
-		sum_sq += s * s
-		if abs(s) > peak:
-			peak = abs(s)
-	var rms := sqrt(sum_sq / max(1, to_send.size()))
-	print("Sent ", bytes.size(), " bytes | frames=", to_send.size(), " rms=", snapped(rms, 0.000001), " peak=", snapped(peak, 0.000001))
